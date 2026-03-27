@@ -1,0 +1,23 @@
+@startuml
+
+actor rook
+
+boundary products
+component weights
+agent monitor
+
+agent "storage tracker" as STS
+database "storage_db" as ST_DB
+
+agent frontend
+
+rook -> frontend
+
+frontend -> STS
+monitor -> STS
+weights -> monitor
+products -> weights
+
+STS -> ST_DB
+
+@enduml

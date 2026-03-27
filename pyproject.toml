@@ -1,0 +1,33 @@
+[project]
+name = "storage-tracker"
+version = "0.1.0"
+description = "backend to db"
+authors = [
+    {name = "CdRook"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi[standard] (==0.116.1)",
+    "uvicorn[standard] (>=0.35.0,<0.36.0)",
+    "flake8 (>=7.3.0,<8.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "sqlmodel (>=0.0.24,<0.0.25)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+
