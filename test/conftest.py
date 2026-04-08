@@ -1,15 +1,22 @@
+
+from typing import List
+
 import pytest
-from sqlalchemy import delete
+from sqlalchemy.pool import StaticPool
 from sqlmodel import SQLModel, Session, create_engine
+from fastapi.testclient import TestClient
 
 from storage_tracker.database.classes import Product
 
+from storage_tracker.main import app, get_session, require_api_key
+
 
 @pytest.fixture(name="session", scope='session')
-def session():
-    test_sqlite_file_name = "db/test_database.db"
-    test_sqlite_url = f"sqlite:///{test_sqlite_file_name}"
-    engine = create_engine(test_sqlite_url, echo=True)
+def session_fixture():
+    engine = create_engine("sqlite:///:memory:",
+                           echo=True,
+                           connect_args={"check_same_thread": False},
+                           poolclass=StaticPool)
 
     SQLModel.metadata.create_all(engine)
 
@@ -17,20 +24,44 @@ def session():
         yield session
 
 
-@pytest.fixture(scope='session')
-def test_product() -> Product:
-    product = Product(name="peanutbutter", quantity=2)
-    product.set_presence()
+@pytest.fixture(name="client", scope="session")
+def client_fixture(session: Session):
+    def get_session_override():
+        return session
 
-    return product
+    app.dependency_overrides[get_session] = get_session_override
+    app.dependency_overrides[require_api_key] = lambda: None
+
+    client = TestClient(app)
+    yield client
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture(scope='session')
+def test_products() -> List[Product]:
+
+    products: List[Product] = []
+
+    products_set_list: List[tuple[str, int]] = [
+        ("peanutbutter", 2),
+        ("rice", 4),
+        ("coffee", 0),
+        ("oat_milk", 1)
+    ]
+
+    for product_set in products_set_list:
+        product = Product(name=product_set[0], quantity=product_set[1])
+        product.set_presence()
+
+        products.append(product)
+
+    return products
 
 
 @pytest.fixture(autouse=True)
-def populate_test_db(session: Session, test_product: Product):
-    stmt = delete(Product).where(Product.name == test_product.name)
-    session.execute(stmt)
-    session.commit()
-    session.flush()
+def populate_test_db(client: TestClient, test_products: List[Product]):
+    client.delete("/delete_all_products")
 
-    session.add(test_product)
-    session.commit()
+    for test_product in test_products:
+        client.post(f"/add_product?product_name={test_product.name}&product_quantity={test_product.quantity}",
+                    headers={"X-Token": "coneofsilence"})

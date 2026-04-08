@@ -1,2 +1,3 @@
+DEVOPS
 # pin fastapi version
-# docker
+# Create a non-privileged user that the app will run under

@@ -18,7 +18,7 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /storage_tracker
 
-# Create a non-privileged user that the app will run under.
+# TODO: Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
 # ARG UID=10001
 # RUN adduser \
@@ -46,13 +46,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY . .
 
 # Expose the port that the application listens on.
-EXPOSE 8002
+EXPOSE 8000
 
-# Run the application.
-# CMD gunicorn '.tox.py.Lib.site-packages.fastapi.middleware.wsgi' --bind=0.0.0.0:8000
-# CMD uvicorn '.tox.py.Lib.site-packages.fastapi.middleware.wsgi' --bind=0.0.0.0:8000
-
-# ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
-# USER appuser
-
-CMD ["fastapi", "run", "storage_tracker/main.py", "--proxy-headers", "--port", "8002"]
+ENTRYPOINT ["/bin/sh", "entrypoint.sh"]

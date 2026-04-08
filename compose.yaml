@@ -12,10 +12,18 @@ services:
   server:
     build:
       context: .
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT}
+      - SSL_KEYFILE=${SSL_KEYFILE}
+      - SSL_CERTFILE=${SSL_CERTFILE}
+      - CORS_DOMAIN=${CORS_DOMAIN}
+      - API_KEY=${API_KEY}
     ports:
-      - 8002:8002
+      - 8000:8000
     volumes:
       - storage_tracker_db:/db
+      - /etc/letsencrypt:/etc/letsencrypt:ro
 
 volumes:
   storage_tracker_db:
