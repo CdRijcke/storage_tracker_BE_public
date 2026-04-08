@@ -5,7 +5,7 @@ description = "backend to db"
 authors = [
     {name = "CdRook"}
 ]
-readme = "readme.md"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi[standard] (==0.116.1)",
